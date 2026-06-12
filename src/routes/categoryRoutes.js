@@ -7,12 +7,13 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../controllers/categoryController");
+const auth = require("../middleware/auth");
+const adminAuth = require("../middleware/adminAuth");
 
-// We keep these public for now. Usually create/update/delete are protected by admin auth middleware.
-router.post("/", createCategory);
+router.post("/", auth, adminAuth, createCategory);
 router.get("/", getCategories);
 router.get("/:id", getCategory);
-router.put("/:id", updateCategory);
-router.delete("/:id", deleteCategory);
+router.put("/:id", auth, adminAuth, updateCategory);
+router.delete("/:id", auth, adminAuth, deleteCategory);
 
 module.exports = router;
