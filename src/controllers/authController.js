@@ -54,19 +54,25 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Login Attempt:", { email, password });
 
     const user = await User.findOne({ email });
-
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(401).json({ message: "Invalid email or password" });
+    console.log("User Found:", !!user);
+    
+    if (user) {
+       const match = await user.matchPassword(password);
+       console.log("Password Match:", match);
+       if (match) {
+         return res.json({
+           _id: user._id,
+           name: user.name,
+           email: user.email,
+           token: generateToken(user._id),
+         });
+       }
     }
+    
+    res.status(401).json({ message: "Invalid email or password" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
