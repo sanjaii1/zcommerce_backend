@@ -143,6 +143,7 @@ const profile = async (req, res) => {
         name: user.name,
         email: user.email,
         picture: user.picture,
+        phone: user.phone ?? null,
       });
     } else {
       res.status(404).json({ message: "User not found" });
@@ -159,6 +160,11 @@ const updateProfile = async (req, res) => {
     if (user) {
       user.name = req.body.name || user.name;
       
+      // Allow updating phone number (can be cleared by passing empty string)
+      if (req.body.phone !== undefined) {
+        user.phone = req.body.phone || null;
+      }
+
       if (req.body.password) {
         user.password = req.body.password;
       }
@@ -169,6 +175,7 @@ const updateProfile = async (req, res) => {
         _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
+        phone: updatedUser.phone ?? null,
         token: generateToken(updatedUser._id),
       });
     } else {
