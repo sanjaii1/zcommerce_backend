@@ -1,5 +1,9 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -78,6 +82,56 @@ const login = async (req, res) => {
   }
 };
 
+const googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "No token provided" });
+    }
+
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // New user — create with Google profile data
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email,
+        picture: picture || null,
+        password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8),
+      });
+    } else {
+      // Existing user — update picture in case they changed their Google photo
+      if (picture && user.picture !== picture) {
+        user.picture = picture;
+        await user.save();
+      }
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      picture: user.picture,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    console.error("Google Login Error:", error);
+    if (error.message && error.message.includes("Token used too late") || error.message.includes("Wrong recipient")) {
+      res.status(401).json({ message: "Invalid Google token" });
+    } else {
+      res.status(500).json({ message: error.message || "Failed to process Google Login" });
+    }
+  }
+};
+
+
 const profile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -87,6 +141,7 @@ const profile = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        picture: user.picture,
       });
     } else {
       res.status(404).json({ message: "User not found" });
@@ -138,4 +193,4 @@ const deleteProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, profile, updateProfile, deleteProfile };
+module.exports = { register, login, googleLogin, profile, updateProfile, deleteProfile };
