@@ -2,8 +2,6 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require('google-auth-library');
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -89,6 +87,8 @@ const googleLogin = async (req, res) => {
       return res.status(400).json({ message: "No token provided" });
     }
 
+    // Instantiate lazily so dotenv is guaranteed to have loaded
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -123,10 +123,11 @@ const googleLogin = async (req, res) => {
     });
   } catch (error) {
     console.error("Google Login Error:", error);
-    if (error.message && error.message.includes("Token used too late") || error.message.includes("Wrong recipient")) {
-      res.status(401).json({ message: "Invalid Google token" });
+    const msg = error.message || "";
+    if (msg.includes("Token used too late") || msg.includes("Wrong recipient") || msg.includes("Invalid token")) {
+      res.status(401).json({ message: "Invalid or expired Google token" });
     } else {
-      res.status(500).json({ message: error.message || "Failed to process Google Login" });
+      res.status(500).json({ message: msg || "Failed to process Google Login" });
     }
   }
 };
