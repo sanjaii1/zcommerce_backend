@@ -13,6 +13,10 @@ const categorySchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    description: {
+      type: String,
+      default: "",
+    },
     image: {
       type: String,
       default: "",

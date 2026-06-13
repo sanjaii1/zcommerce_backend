@@ -3,7 +3,7 @@ const Category = require("../models/Category");
 // Create Category
 const createCategory = async (req, res) => {
   try {
-    const { name, slug, image } = req.body;
+    const { name, description, slug, image } = req.body;
 
     // Generate slug from name if not provided
     const categorySlug = slug || name.toLowerCase().replace(/ /g, '-');
@@ -15,6 +15,7 @@ const createCategory = async (req, res) => {
 
     const category = await Category.create({
       name,
+      description,
       slug: categorySlug,
       image,
     });
@@ -52,12 +53,14 @@ const getCategory = async (req, res) => {
 // Update category
 const updateCategory = async (req, res) => {
   try {
-    const { name, slug, image } = req.body;
+    const { name, description, slug, image } = req.body;
     const category = await Category.findById(req.params.id);
 
     if (category) {
       category.name = name || category.name;
       
+      if (description !== undefined) category.description = description;
+
       if (slug) category.slug = slug;
       else if (name) category.slug = name.toLowerCase().replace(/ /g, '-');
       
