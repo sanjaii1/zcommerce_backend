@@ -11,15 +11,9 @@ const productHighlightSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true },
 });
 
-const productPerkSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  icon: { type: String, required: true },
-});
-
-const productAccordionSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  content: { type: String, required: true },
+const productAdditionalInfoSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  value: { type: String, required: true },
 });
 
 const productSchema = new mongoose.Schema(
@@ -37,6 +31,9 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    offerPrice: {
+      type: String,
+    },
     inventory: {
       type: Number,
       required: true,
@@ -53,8 +50,13 @@ const productSchema = new mongoose.Schema(
     },
     attributes: [productAttributeSchema],
     highlights: [productHighlightSchema],
-    perks: [productPerkSchema],
-    accordions: [productAccordionSchema],
+    detailedDescription: { type: String },
+    keyBenefits: [{ type: String }],
+    howToUse: [{ type: String }],
+    additionalInfo: [productAdditionalInfoSchema],
+    isMostPopular: { type: Boolean, default: false },
+    isNewArrival: { type: Boolean, default: false },
+    isBestSeller: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
