@@ -48,6 +48,7 @@ const productSchema = new mongoose.Schema(
       enum: ["Active", "Draft", "Archived"],
       default: "Draft",
     },
+    images: [{ type: String }],
     attributes: [productAttributeSchema],
     highlights: [productHighlightSchema],
     detailedDescription: { type: String },
