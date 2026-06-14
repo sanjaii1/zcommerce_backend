@@ -30,6 +30,7 @@ app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/addresses", require("./routes/addressRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/upload", require("./routes/uploadRoutes"));
+app.use("/api/storefront", require("./routes/storefrontRoutes"));
 
 // Serve uploads folder statically
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
