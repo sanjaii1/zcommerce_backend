@@ -43,6 +43,8 @@ const storefrontSchema = new mongoose.Schema(
       isVisible: { type: Boolean, default: true },
       title: { type: String, default: "Latest from our Blog" },
       subtitle: { type: String, default: "Read our latest news and updates." },
+      description: { type: String, default: "" },
+      imageUrl: { type: String, default: "" },
     },
 
     promotionalBanners: {
