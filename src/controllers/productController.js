@@ -37,6 +37,7 @@ exports.getProductById = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
   try {
+    console.log("updateProduct params:", req.params.id, "body:", req.body);
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,

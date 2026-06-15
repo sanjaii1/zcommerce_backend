@@ -76,12 +76,22 @@ const updateCategory = async (req, res) => {
   }
 };
 
+const Product = require("../models/Product");
+
 // Delete category
 const deleteCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
 
     if (category) {
+      // Check if any products use this category
+      const productsCount = await Product.countDocuments({ category: category.name });
+      if (productsCount > 0) {
+        return res.status(400).json({ 
+          message: `Cannot delete category. There are ${productsCount} product(s) associated with it.` 
+        });
+      }
+
       await Category.deleteOne({ _id: category._id });
       res.json({ message: "Category removed successfully" });
     } else {
