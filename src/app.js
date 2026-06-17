@@ -16,6 +16,10 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter);
 
+// We need the raw body to verify webhook signatures.
+// Let's compute it only for webhooks
+app.use("/api/payments/webhook", express.raw({ type: "application/json" }));
+
 // Standard Middleware
 app.use(cors());
 app.use(express.json());
@@ -32,6 +36,7 @@ app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/upload", require("./routes/uploadRoutes"));
 app.use("/api/storefront", require("./routes/storefrontRoutes"));
 app.use("/api/blogs", require("./routes/blogRoutes"));
+app.use("/api/payments", require("./routes/paymentRoutes"));
 
 // Serve uploads folder statically
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
