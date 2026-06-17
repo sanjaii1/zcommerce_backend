@@ -37,6 +37,7 @@ app.use("/api/upload", require("./routes/uploadRoutes"));
 app.use("/api/storefront", require("./routes/storefrontRoutes"));
 app.use("/api/blogs", require("./routes/blogRoutes"));
 app.use("/api/payments", require("./routes/paymentRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
 
 // Serve uploads folder statically
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
