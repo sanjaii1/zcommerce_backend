@@ -55,8 +55,13 @@ const getOrderById = async (req, res) => {
     const order = await Order.findById(req.params.id).populate("user", "name email");
 
     if (order) {
-      // Basic check: user can only see their own order (unless they are admin, but we don't have roles yet)
-      if (order.user._id.toString() !== req.user.id) {
+      // Check if user is admin
+      const User = require("../models/User");
+      const requestUser = await User.findById(req.user.id);
+      const isAdmin = requestUser && requestUser.role === "admin";
+
+      // Basic check: user can only see their own order (unless they are admin)
+      if (order.user._id.toString() !== req.user.id && !isAdmin) {
         return res.status(401).json({ message: "Not authorized to view this order" });
       }
       res.json(order);
@@ -88,9 +93,20 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+// Get all orders (Admin)
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({}).sort({ createdAt: -1 }).populate("user", "name email");
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createOrder,
   getUserOrders,
   getOrderById,
   updateOrderStatus,
+  getAllOrders,
 };
